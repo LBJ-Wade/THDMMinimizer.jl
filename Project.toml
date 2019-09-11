@@ -1,0 +1,13 @@
+name = "THDMMinimizer"
+uuid = "94c67b71-6778-44f5-a3a3-2386cc6e48f3"
+authors = ["Logan Morrison"]
+version = "0.1.0"
+
+[compat]
+julia = "1.2"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
