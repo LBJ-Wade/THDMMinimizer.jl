@@ -4,3 +4,11 @@
 .DS_Store
 /Manifest.toml
 /dev/
+/data/candidates_a1.csv
+/data/candidates_a2.csv
+/data/candidates_b.csv
+/data/candidates_c.csv
+/data/verified_b.csv
+/data/verified_c.csv
+*.ipynb
+/scripts/.ipynb_checkpoints/
