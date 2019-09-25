@@ -1,6 +1,34 @@
+"""
+File for performing a monte carlo scan over the THDM parameter space in order
+to find parameters for which there exists simultaneous normal and CB minima
+of the THDM 1-loop effective potential. The algorithm is as follows:
+    1. generate a normal and CB vacuum and THDM parameters such that the
+       tree-level potential is approximately extremized at the vacuua and the
+       tree-level potential is bounded.
+    2. Choose 50 new randomly placed vacuua and perform a minimization at
+       each in order to possibly find all minima.
+    3. Determine if parameters yeild a normal and CB minimum.
+    4. Determine which is deepest
+    5. Save data.
+If at any point one of the above steps fails, then we return to step (1). We
+call parameters sets which yield a normal and CB minimum 'type A'. If the
+CB is deeper, we call it 'type A1' and if the normal is deeper we call it
+'type A2'.
+
+Additionally, we have the option of saving parameter sets which yield only a
+normal or only a CB minimum. We call the former 'type B' and the latter
+'type C'.
+"""
+
 using THDMMinimizer
 using DelimitedFiles
 
+"""
+    write_headers([;onlya=false])
+
+Write the headers of the data files for 'type A1' and 'type A2'. If `onlya` is
+false, additional data files are created for 'type B' and 'type C'.
+"""
 function write_headers(onlya=false)
     fname_a1 = "typea1.csv"
     fname_a2 = "typea2.csv"
@@ -31,6 +59,12 @@ function write_headers(onlya=false)
     end
 end
 
+"""
+    print_current_stats(num_a1, num_a2, num_b, num_c)
+
+Print the current number of points found for each type. The previous stats are
+erased and new stats are printed to the console.
+"""
 function print_current_stats(num_a1, num_a2, num_b, num_c)
     print("\u1b[1F")
     printstyled("|", color=:yellow)
@@ -46,6 +80,12 @@ function print_current_stats(num_a1, num_a2, num_b, num_c)
     println()
 end
 
+"""
+    print_current_stats(num_a1, num_a2, num_b, num_c)
+
+Print the current number of points found for types 'A1' and 'A2'. The previous
+stats are erased and new stats are printed to the console.
+"""
 function print_current_stats(num_a1, num_a2)
     print("\u1b[1F")
     printstyled("|", color=:yellow)
@@ -57,6 +97,14 @@ function print_current_stats(num_a1, num_a2)
     println()
 end
 
+"""
+    scan(;μ::Float64 = HIGGS_VEV, onlya=false)
+
+Perform a monte-carlo scan over the THDM parameter space to find parameters sets
+for which there exists simultaneous CB and normal minima. If `onlya` is false,
+then parameter sets for which there is only a normal or CB minimum are also
+recorded.
+"""
 function scan(;μ::Float64 = HIGGS_VEV, onlya=false)
     fname_a1 = "typea1.csv"
     fname_a2 = "typea2.csv"

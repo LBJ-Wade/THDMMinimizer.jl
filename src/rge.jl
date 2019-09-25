@@ -42,5 +42,5 @@ function run_parameters(params::Params{Float64}, μ1::Float64, μ2::Float64)
         params.g
     ]
     prob = ODEProblem(rge_system, u0, (μ1, μ2))
-    sol = solve(prob, Tsit5(), retol=1e-8, abstol=1e-8)
+    sol = DifferentialEquations.solve(prob, Tsit5(), retol=1e-8, abstol=1e-8)
 end

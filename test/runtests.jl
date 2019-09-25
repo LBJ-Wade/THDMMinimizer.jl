@@ -7,7 +7,7 @@ using Test
 include("test_utils.jl")
 
 @testset "THDMMinimizer.jl" begin
-    @testset "test jacobi" begin
+    @testset "test symmeig" begin
         M1 = test_matrix1(rand(), rand())
         M2 = test_matrix2(rand(), rand())
         M3 = test_matrix3(rand(), rand())
@@ -15,21 +15,21 @@ include("test_utils.jl")
 
         for M in Ms
             evals = sort(eigvals(M))
-            evals_jacobi = sort(jacobi(M))
-            for (eval, evalj) in zip(evals, evals_jacobi)
+            evals_symmeig = sort(symmeig(M))
+            for (eval, evalj) in zip(evals, evals_symmeig)
                 @test abs(eval - evalj) < 1e-10
             end
         end
     end
 
-    @testset "test jacobi derivs" begin
+    @testset "test symmeig derivs" begin
         # Test matrix 1
         a1, b1 = rand(), rand()
-        devals1aj = sort(jacobi(test_matrix1(
+        devals1aj = sort(symmeig(test_matrix1(
             Dual{Float64}(a1, 1),
             Dual{Float64}(b1, 0)
         )))
-        devals1bj = sort(jacobi(test_matrix1(
+        devals1bj = sort(symmeig(test_matrix1(
             Dual{Float64}(a1, 0),
             Dual{Float64}(b1, 1)
         )))
@@ -41,11 +41,11 @@ include("test_utils.jl")
         @test abs(partials(devals1bj[2], 1) - partials(devals1b[2], 1)) < 1e-10
         # Test matrix 2
         a2, b2 = rand(), rand()
-        devals2aj = sort(jacobi(test_matrix2(
+        devals2aj = sort(symmeig(test_matrix2(
             Dual{Float64}(a2, 1),
             Dual{Float64}(b2, 0)
         )))
-        devals2bj = sort(jacobi(test_matrix2(
+        devals2bj = sort(symmeig(test_matrix2(
             Dual{Float64}(a2, 0),
             Dual{Float64}(b2, 1)
         )))
@@ -57,11 +57,11 @@ include("test_utils.jl")
         @test abs(partials(devals2bj[2], 1) - partials(devals2b[2], 1)) < 1e-10
         # Test matrix 3
         a3, b3 = rand(), rand()
-        devals3aj = sort(jacobi(test_matrix3(
+        devals3aj = sort(symmeig(test_matrix3(
             Dual{Float64}(a3, 1),
             Dual{Float64}(b3, 0)
         )))
-        devals3bj = sort(jacobi(test_matrix3(
+        devals3bj = sort(symmeig(test_matrix3(
             Dual{Float64}(a3, 0),
             Dual{Float64}(b3, 1)
         )))

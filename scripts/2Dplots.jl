@@ -38,7 +38,7 @@ end
 
 function row_to_vacs_and_params(row; tol=1e-5)
     if length(row) == 18
-        pars = Params([row[i] for i in 1:12])
+        pars = Params([[row[i] for i in 1:12]; 0.0])
         nvac = Vacuum(row[13], row[14], row[15], 0.0, NotSet)
         cbvac = Vacuum(row[16], row[17], row[18], 0.0, NotSet)
         categorize_vacuum!(nvac, pars; tol=tol)
@@ -81,18 +81,18 @@ function get_vtree_veffs_plane(ts, ss, θ, data)
     return vtrees, veffs, potential_eff(fs(0.0, 0.), pars), potential_eff(fs(1.0, 0.0), pars)
 end
 
-point=897
+point=199
 plt.close_figs()
 begin
     plt.figure(dpi=100, figsize=(9,6))
     plt.suptitle(L"$V_{\mathrm{eff}}(\phi_{CB})<V_{\mathrm{eff}}(\phi_{EW})$", fontsize=16)
     plt.subplot(121)
     plt.title("Effective Potential", fontsize=16)
-    ts = range(-0.2, stop=1.2, length=100)
-    ss = range(-0.2, stop=0.2, length=100)
-    vtrees, veffs, vn, vcb = get_vtree_veffs_plane(ts, ss, 0, data1[point,:])
-    plt.contourf(ts, ss, veffs', cmap="viridis", levels=10)
-    plt.contour(ts, ss, veffs', cmap="binary",levels=35, linewidths=1,alpha=0.4)
+    ts = range(-0.25, stop=1.25, length=100)
+    ss = range(-0.3, stop=0.3, length=100)
+    vtrees, veffs, vn, vcb = get_vtree_veffs_plane(ts, ss, π, data1[point,:])
+    plt.contourf(ts, ss, veffs', cmap="viridis", levels=60)
+    plt.contour(ts, ss, veffs', cmap="binary",levels=120, linewidths=1,alpha=0.4)
     plt.scatter([0.0], [0.0], c="white")
     plt.scatter([1.0], [0.0], c="white")
     plt.text(0.90, 0.02, L"\mathrm{CB}", fontsize=30, fontdict=Dict(:color=>"white"))
@@ -101,9 +101,9 @@ begin
     plt.subplot(122)
     plt.yticks([])
     plt.title("Tree-Level Potential", fontsize=16)
-    plt.contourf(ts, ss, vtrees', cmap="viridis", levels=10, alpha=1.0)
+    plt.contourf(ts, ss, vtrees', cmap="viridis", levels=60, alpha=1.0)
     plt.colorbar()
-    plt.contour(ts, ss, vtrees', cmap="Greys", levels=30, linewidths=1,alpha=0.4)
+    plt.contour(ts, ss, vtrees', cmap="Greys", levels=120, linewidths=1,alpha=0.4)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.gcf()
     plt.savefig("cb_2D_" * string(point) * ".pdf")
@@ -112,7 +112,7 @@ end
 
 
 
-point=26
+point=1042
 plt.close_figs()
 begin
     plt.figure(dpi=100, figsize=(9,6))
@@ -121,9 +121,9 @@ begin
     plt.title("Effective Potential", fontsize=16)
     ts = range(-0.2, stop=1.2, length=100)
     ss = range(-0.4, stop=0.4, length=100)
-    vtrees, veffs, vn, vcb = get_vtree_veffs_plane(ts, ss, 0.0, data2[point,:])
-    plt.contourf(ts, ss, veffs', cmap="viridis", levels=20)
-    plt.contour(ts, ss, veffs', cmap="Greys", levels=60, linewidths=1,alpha=0.4)
+    vtrees, veffs, vn, vcb = get_vtree_veffs_plane(ts, ss, π/3, data2[point,:])
+    plt.contourf(ts, ss, veffs', cmap="viridis", levels=30)
+    plt.contour(ts, ss, veffs', cmap="Greys", levels=30, linewidths=1,alpha=0.4)
     plt.scatter([0.0], [0.0], c="white")
     plt.scatter([1.0], [0.0], c="white")
     plt.text(0.90, 0.02, L"\mathrm{CB}", fontsize=30, fontdict=Dict(:color=>"white"))
@@ -132,10 +132,30 @@ begin
     plt.subplot(122)
     plt.yticks([])
     plt.title("Tree-Level Potential", fontsize=16)
-    plt.contourf(ts, ss, vtrees', cmap="viridis", levels=10)
+    plt.contourf(ts, ss, vtrees', cmap="viridis", levels=50)
     plt.colorbar()
-    plt.contour(ts, ss, vtrees', cmap="Greys", levels=35, linewidths=1,alpha=0.4)
+    plt.contour(ts, ss, vtrees', cmap="Greys", levels=50, linewidths=1,alpha=0.4)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.gcf()
     plt.savefig("normal_2D_" * string(point) * ".pdf")
+end
+
+nvac,cbvac,pars=row_to_vacs_and_params(data2[1042, :])
+
+sqrt.(abs.(one_loop_masses(nvac, pars)))
+sqrt.(abs.(one_loop_masses(cbvac, pars)))
+scalar_squared_masses(Fields(nvac), pars)
+get_tree_roots(pars)
+@show pars
+@show nvac
+@show cbvac
+
+
+for i in 1:length(data1[:,1])
+    nvac,cbvac,pars=row_to_vacs_and_params(data1[i, :])
+    minn = minimum(scalar_squared_masses(Fields(nvac), pars))
+    mincb = minimum(scalar_squared_masses(Fields(cbvac), pars))
+    if minn>0 && mincb >0
+        println(i)
+    end
 end

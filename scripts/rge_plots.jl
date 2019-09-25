@@ -3,13 +3,14 @@ using DelimitedFiles
 using LaTeXStrings
 import PyPlot; const plt = PyPlot;
 using Printf
+using DifferentialEquations
 
 data1 = readdlm(string(@__DIR__) * "/../data/verified_a1.csv", ',', skipstart=1);
 data2 = readdlm(string(@__DIR__) * "/../data/verified_a2.csv", ',', skipstart=1);
 
 function row_to_vacs_and_params(row; tol=1e-5)
     if length(row) == 18
-        pars = Params([row[i] for i in 1:12])
+        pars = Params([[row[i] for i in 1:12]; 0.0])
         nvac = Vacuum(row[13], row[14], row[15], 0.0, NotSet)
         cbvac = Vacuum(row[16], row[17], row[18], 0.0, NotSet)
         categorize_vacuum!(nvac, pars; tol=tol)
@@ -38,7 +39,7 @@ function run_vacuua(row; μf::Float64=400.0, tol=1e-5)
 
     for μ in μs[2:end]
         ps = sols(μ);
-        ps = [ps[1:8]; μ; ps[9:end]]
+        ps = [[ps[1:8]; μ; ps[9:end]]; 0.0]
         pars = Params(ps)
         nvac_new = deepcopy(nvacs[end])
         cbvac_new = deepcopy(cbvacs[end])
@@ -84,9 +85,10 @@ end
 
 # good points:
 # 16, 22, 26, 31,34, 51, 60, 71, 72, 83, 86, 91, 927, 924, 919, 917, 909, 900, 897
-point = 897
+point = 1890#good2pts2[15]
+plt.close_figs()
 begin
-    μf=400.0
+    μf=200.0
     _, _, pars = row_to_vacs_and_params(data1[point,:])
     μs, nvacs, cbvacs = run_vacuua(data1[point,:]; μf=μf)
     veffsn = [nvac.potential for nvac in nvacs]
@@ -106,11 +108,12 @@ begin
     #plt.text(253.5, -9.06e8, latexstring("\\lambda_{4} = " * num_to_sn(pars.λ4)), fontsize=12)
     #plt.text(253.5, -9.12e8, latexstring("\\lambda_{5} = " * num_to_sn(pars.λ5)), fontsize=12)
     plt.gcf()
-    plt.savefig("cb_rge_" * string(point) * ".pdf")
+    #plt.savefig("cb_rge_" * string(point) * ".pdf")
 end
 
-# good points: 2, 9, 16, 19, 24, 26
-point = 26
+# good points: 456 = good2pts[46], 533 = good2pts[52]
+# 537 = good2pts[53], 767 = good2pts[76], 113 = good2pts[1042]
+point = good2pts[113]
 plt.close_figs()
 begin
     μf=400.0
@@ -133,11 +136,54 @@ begin
     #plt.text(253.5, -6.70e8, latexstring("\\lambda_{4} = " * num_to_sn(pars.λ4)), fontsize=12)
     #plt.text(253.5, -6.76e8, latexstring("\\lambda_{5} = " * num_to_sn(pars.λ5)), fontsize=12)
     plt.gcf()
-    plt.savefig("normal_rge_" * string(point) * ".pdf")
+    #plt.savefig("normal_rge_" * string(point) * ".pdf")
 end
 
-nvac, cbvac, pars = row_to_vacs_and_params(data1[897,:])
+function find_pts_with_sm_vevs(data)
+    sm_vevs = Array{Int,1}(undef,0)
+    for i in 1:length(data[:, 1])
+        nvac,_,pars=row_to_vacs_and_params(data[i, :])
+        val = 246.0 - sqrt(nvac.v1^2 + nvac.v2^2)
+        if abs(val) < 1e-2
+            sm_vevs = [sm_vevs; Int(i)]
+        end
+    end
+    sm_vevs
+end
 
-@show pars
-@show nvac
-@show cbvac
+good2pts = find_pts_with_sm_vevs(data2)
+
+good2pts2 = find_pts_with_sm_vevs(data1)
+
+
+struct Dual{T<:Real} <:Real
+    val::T # real component of the dual number.
+    eps::T # infinitesimal component of the dual number. eps^2 = 0
+end
+
+function Base.:*(z::Dual{T}, w::Dual{T}) where T<:Real
+    Dual{T}(z.val * w.val, z.val * w.eps + z.eps * w.val)
+end
+
+
+function Base.sin(z::Dual{T}) where T<:Real
+    Dual{T}(sin(z.val), cos(z.eps))
+end
+
+function Base.cos(z::Dual{T}) where T<:Real
+    Dual{T}(cos(z.val), -sin(z.eps))
+end
+
+d1 = Dual{Float64}(1.0, 1.0)
+d2 = Dual{Float64}(2.0, 0.0)
+
+d1 * d2
+
+@show sin(d1)
+
+sin(1)
+cos(1)
+
+d3 = Dual{Dual{Float64}}(Dual{Float64}(1.0, 0.0), Dual{Float64}(0.0, 1.0))
+
+@show sin(d3)

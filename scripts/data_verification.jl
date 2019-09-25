@@ -1,3 +1,13 @@
+"""
+File for verifying the data produced by the scans. We grab all the data points
+from the 'candidates' file and perform the following checks:
+    1. check that gradients at `nvac` and `cbvac` are zero within tolerance
+    2. check that the goldstone masses at vacuua are within tolerance
+    3. check that potential is bounded at tree-level
+    4. check that parameters are pertubative
+We choose the tolerane to be 1e-5.
+"""
+
 using THDMMinimizer
 using CSV
 using DataFrames
@@ -10,7 +20,7 @@ df_c = DataFrame(CSV.read(string(@__DIR__) * "/../data/candidates_c.csv"))
 
 function row_to_vacs_and_params(row; tol=1e-5)
     if length(row) == 18
-        pars = Params([row[i] for i in 1:12])
+        pars = Params([[row[i] for i in 1:12]; 0.0])
         nvac = Vacuum(row[13], row[14], row[15], 0.0, NotSet)
         cbvac = Vacuum(row[16], row[17], row[18], 0.0, NotSet)
         categorize_vacuum!(nvac, pars; tol=tol)

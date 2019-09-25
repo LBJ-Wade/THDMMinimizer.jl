@@ -7,10 +7,13 @@ using StatsBase
 using NLsolve
 using DifferentialEquations
 using DelimitedFiles
+using HomotopyContinuation
 @reexport using Optim
 
+include("utils.jl")
 include("constants.jl")
 include("types.jl")
+include("symmeig.jl")
 include("jacobi.jl")
 include("scalar_squared_masses.jl")
 include("fermion_squared_masses.jl")
@@ -71,12 +74,15 @@ export NotSet
 export set_top_yukawa!
 export generate_normal_vac
 export generate_cb_vac
-# jacobi algorithm
+# symmetric eigenvalue/eigenvectors
 export jacobi
 export JacobiMaxIterError
+export symmeig
+export SymmEigMaxIterError
 # Potentials
 export potential_tree
 export potential_eff
+export potential_one_loop
 export one_loop_masses
 # Masses
 export scalar_squared_mass_matrix
@@ -90,6 +96,7 @@ export minimize!
 export solve_tree_eqns!
 export generate_params_and_vacs
 export solve_root_eqns
+export find_tree_vacuua
 export find_new_minima
 export catagorize_results
 export find_deepest_normal_min

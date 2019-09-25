@@ -107,6 +107,21 @@ function Base.setindex!(fields::Fields{T}, val::U, flds::FieldIndex) where {T<:R
     end
 end
 
+promote(Float64, Int)
+
+function Base.:+(flds1::Fields{T}, flds2::Fields{U}) where {T<:Real, U<:Real}
+    return Fields(
+        sum(promote(flds1.r1, flds2.r1)),
+        sum(promote(flds1.r2, flds2.r2)),
+        sum(promote(flds1.c1, flds2.c1)),
+        sum(promote(flds1.c2, flds2.c2)),
+        sum(promote(flds1.c3, flds2.c3)),
+        sum(promote(flds1.c4, flds2.c4)),
+        sum(promote(flds1.i1, flds2.i1)),
+        sum(promote(flds1.i2, flds2.i2))
+    )
+end
+
 """
     to_dual(fields::Fields{T}, flds::Symbol...) where T<:Real
 
@@ -194,6 +209,8 @@ mutable struct Params{T<:Real}
     gp::T # U(1)_Y gauge coupling
     "SU(2) gauge coupling"
     g::T # SU(2)_L gauge coupling
+    "gauge-parameter"
+    ξ::T
 end
 
 """
@@ -216,9 +233,10 @@ function Params(ps::Array{T,1}) where T<:Real
             convert(T, HIGGS_VEV),
             zero(T),
             convert(T, U1Y_COUP),
-            convert(T, SU2_COUP)
+            convert(T, SU2_COUP),
+            zero(T)
         )
-    elseif length(ps) == 12
+    elseif length(ps) == 13
         Params(
             ps[1],
             ps[2],
@@ -231,10 +249,11 @@ function Params(ps::Array{T,1}) where T<:Real
             ps[9],
             ps[10],
             ps[11],
-            ps[12]
+            ps[12],
+            ps[13]
         )
     else
-        throw("length of input vector must be 8 or 12 when initializing params")
+        throw("length of input vector must be 8 or 13 when initializing params")
     end
 end
 
@@ -256,7 +275,8 @@ function Params{T}() where T <: Real
         zero(T),
         zero(T),
         convert(T, U1Y_COUP),
-        convert(T, SU2_COUP)
+        convert(T, SU2_COUP),
+        zero(T)
     )
 end
 
@@ -400,7 +420,8 @@ function to_dual(params::Params{T}, pars::ParamIndex...) where T <: Real
         Dual{T}(params.μ, 0, 0, 0, 0, 0, 0, 0, 0),
         Dual{T}(params.yt, 0, 0, 0, 0, 0, 0, 0, 0),
         Dual{T}(params.g, 0, 0, 0, 0, 0, 0, 0, 0),
-        Dual{T}(params.gp, 0, 0, 0, 0, 0, 0, 0, 0)
+        Dual{T}(params.gp, 0, 0, 0, 0, 0, 0, 0, 0),
+        Dual{T}(params.ξ, 0, 0, 0, 0, 0, 0, 0, 0)
     )
 end
 
