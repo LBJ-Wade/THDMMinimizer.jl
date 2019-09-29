@@ -61,6 +61,14 @@ function verify_data(row; tol=1e-5)
     end
 end
 
+function positive_tree_masses(row;tol=1e-5)
+    nvac, cbvac, pars = row_to_vacs_and_params(row; tol=tol)
+    minn = minimum(scalar_squared_masses(Fields(nvac), pars))
+    mincb = minimum(scalar_squared_masses(Fields(cbvac), pars))
+    return minn > 0 && mincb > 0
+end
+
+
 
 df_a1_verified = filter(verify_data, df_a1)
 df_a2_verified = filter(verify_data, df_a2)
@@ -71,3 +79,9 @@ CSV.write(string(@__DIR__) * "/../data/verified_a1.csv", df_a1_verified)
 CSV.write(string(@__DIR__) * "/../data/verified_a2.csv", df_a2_verified)
 CSV.write(string(@__DIR__) * "/../data/verified_b.csv", df_b_verified)
 CSV.write(string(@__DIR__) * "/../data/verified_c.csv", df_c_verified)
+
+df_a1_pos_mass = filter(positive_tree_masses, df_a1_verified)
+df_a2_pos_mass = filter(positive_tree_masses, df_a2_verified)
+
+CSV.write(string(@__DIR__) * "/../data/verified_pos_mass_a1.csv", df_a1_pos_mass)
+CSV.write(string(@__DIR__) * "/../data/verified_pos_mass_a2.csv", df_a2_pos_mass)

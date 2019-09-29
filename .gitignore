@@ -8,7 +8,11 @@
 /data/candidates_a2.csv
 /data/candidates_b.csv
 /data/candidates_c.csv
+/data/verified_a1.csv
+/data/verified_a2.csv
 /data/verified_b.csv
 /data/verified_c.csv
+/data/seeds_a1.csv
+/data/seeds_a2.csv
 *.ipynb
 /scripts/.ipynb_checkpoints/

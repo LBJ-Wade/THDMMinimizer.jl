@@ -5,8 +5,8 @@ import PyPlot; const plt = PyPlot;
 using Printf
 using DifferentialEquations
 
-data1 = readdlm(string(@__DIR__) * "/../data/verified_a1.csv", ',', skipstart=1);
-data2 = readdlm(string(@__DIR__) * "/../data/verified_a2.csv", ',', skipstart=1);
+data1 = readdlm(string(@__DIR__) * "/../data/verified_pos_mass_a1.csv", ',', skipstart=1);
+data2 = readdlm(string(@__DIR__) * "/../data/verified_pos_mass_a2.csv", ',', skipstart=1);
 
 function row_to_vacs_and_params(row; tol=1e-5)
     if length(row) == 18
@@ -84,59 +84,50 @@ function create_title_string(pars)
 end
 
 # good points:
-# 16, 22, 26, 31,34, 51, 60, 71, 72, 83, 86, 91, 927, 924, 919, 917, 909, 900, 897
-point = 1890#good2pts2[15]
-plt.close_figs()
+smidxs = filter(i->abs(sqrt(data1[i,13]^2 + data1[i,14]^2) -246.0) < 1.0, i:length(data1[:,1]));
+i = 10
+point = data1[202,:]
 begin
-    μf=200.0
-    _, _, pars = row_to_vacs_and_params(data1[point,:])
-    μs, nvacs, cbvacs = run_vacuua(data1[point,:]; μf=μf)
+    μf=400.0
+    point = data1[175,:]
+    _, _, pars = row_to_vacs_and_params(point)
+    μs, nvacs, cbvacs = run_vacuua(point; μf=μf)
     veffsn = [nvac.potential for nvac in nvacs]
     veffscb = [cbvac.potential for cbvac in cbvacs]
     plt.figure(dpi=100)
-    plt.plot(μs, veffsn, lw=2, label=L"$V_{\mathrm{EW}}$")
+    plt.plot(μs, veffsn, "--", lw=2, label=L"$V_{\mathrm{EW}}$")
     plt.plot(μs, veffscb, lw=2, label=L"$V_{\mathrm{CB}}$")
     plt.xlabel(L"$\mu \ (\mathrm{GeV})$", fontsize=16)
     plt.legend(fontsize=14)
     plt.xlim([pars.μ, μf])
-    #plt.text(250, -8.7e8, latexstring("m_{11}^2 = " * num_to_sn(pars.m112)), fontsize=12)
-    #plt.text(250, -8.76e8, latexstring("m_{12}^2 = " * num_to_sn(pars.m122)), fontsize=12)
-    #plt.text(250, -8.82e8, latexstring("m_{22}^2 = " * num_to_sn(pars.m222)), fontsize=12)
-    #plt.text(253.5, -8.88e8, latexstring("\\lambda_{1} = " * num_to_sn(pars.λ1)), fontsize=12)
-    #plt.text(253.5, -8.94e8, latexstring("\\lambda_{2} = " * num_to_sn(pars.λ2)), fontsize=12)
-    #plt.text(253.5, -9.0e8, latexstring("\\lambda_{3} = " * num_to_sn(pars.λ3)), fontsize=12)
-    #plt.text(253.5, -9.06e8, latexstring("\\lambda_{4} = " * num_to_sn(pars.λ4)), fontsize=12)
-    #plt.text(253.5, -9.12e8, latexstring("\\lambda_{5} = " * num_to_sn(pars.λ5)), fontsize=12)
     plt.gcf()
-    #plt.savefig("cb_rge_" * string(point) * ".pdf")
+    plt.savefig("figures/rgecb/cb_rge_" * string(175) * ".pdf")
+    plt.close_figs()
 end
 
-# good points: 456 = good2pts[46], 533 = good2pts[52]
-# 537 = good2pts[53], 767 = good2pts[76], 113 = good2pts[1042]
-point = good2pts[113]
+nvac, cbvac, pars = row_to_vacs_and_params(data1[77,:]);
+306, 214, 209, 208, 175
+
+smidxsn = filter(i->abs(sqrt(data2[i,13]^2 + data2[i,14]^2) -246.0) < 1.0, i:length(data2[:,1]));
+point = data2[smidxsn[1],:]
+
+smidxsn[1]
+
 plt.close_figs()
 begin
     μf=400.0
-    _, _, pars = row_to_vacs_and_params(data2[point,:])
-    μs, nvacs, cbvacs = run_vacuua(data2[point,:]; μf=μf)
+    _, _, pars = row_to_vacs_and_params(point)
+    μs, nvacs, cbvacs = run_vacuua(point; μf=μf)
     veffsn = [nvac.potential for nvac in nvacs]
     veffscb = [cbvac.potential for cbvac in cbvacs]
     plt.figure(dpi=100)
-    plt.plot(μs, veffsn, lw=2, label=L"$V_{\mathrm{EW}}$")
+    plt.plot(μs, veffsn, lw=2, "--", label=L"$V_{\mathrm{EW}}$")
     plt.plot(μs, veffscb, lw=2, label=L"$V_{\mathrm{CB}}$")
     plt.xlabel(L"$\mu \ (\mathrm{GeV})$", fontsize=16)
     plt.legend(fontsize=14)
     plt.xlim([pars.μ, μf])
-    #plt.text(250, -6.34e8, latexstring("m_{11}^2 = " * num_to_sn(pars.m112)), fontsize=12)
-    #plt.text(250, -6.4e8, latexstring("m_{12}^2 = " * num_to_sn(pars.m122)), fontsize=12)
-    #plt.text(250, -6.46e8, latexstring("m_{22}^2 = " * num_to_sn(pars.m222)), fontsize=12)
-    #plt.text(253.5, -6.52e8, latexstring("\\lambda_{1} = " * num_to_sn(pars.λ1)), fontsize=12)
-    #plt.text(253.5, -6.58e8, latexstring("\\lambda_{2} = " * num_to_sn(pars.λ2)), fontsize=12)
-    #plt.text(253.5, -6.64e8, latexstring("\\lambda_{3} = " * num_to_sn(pars.λ3)), fontsize=12)
-    #plt.text(253.5, -6.70e8, latexstring("\\lambda_{4} = " * num_to_sn(pars.λ4)), fontsize=12)
-    #plt.text(253.5, -6.76e8, latexstring("\\lambda_{5} = " * num_to_sn(pars.λ5)), fontsize=12)
     plt.gcf()
-    #plt.savefig("normal_rge_" * string(point) * ".pdf")
+    plt.savefig("normal_rge_" * string(smidxsn[1]) * ".pdf")
 end
 
 function find_pts_with_sm_vevs(data)
@@ -152,38 +143,4 @@ function find_pts_with_sm_vevs(data)
 end
 
 good2pts = find_pts_with_sm_vevs(data2)
-
 good2pts2 = find_pts_with_sm_vevs(data1)
-
-
-struct Dual{T<:Real} <:Real
-    val::T # real component of the dual number.
-    eps::T # infinitesimal component of the dual number. eps^2 = 0
-end
-
-function Base.:*(z::Dual{T}, w::Dual{T}) where T<:Real
-    Dual{T}(z.val * w.val, z.val * w.eps + z.eps * w.val)
-end
-
-
-function Base.sin(z::Dual{T}) where T<:Real
-    Dual{T}(sin(z.val), cos(z.eps))
-end
-
-function Base.cos(z::Dual{T}) where T<:Real
-    Dual{T}(cos(z.val), -sin(z.eps))
-end
-
-d1 = Dual{Float64}(1.0, 1.0)
-d2 = Dual{Float64}(2.0, 0.0)
-
-d1 * d2
-
-@show sin(d1)
-
-sin(1)
-cos(1)
-
-d3 = Dual{Dual{Float64}}(Dual{Float64}(1.0, 0.0), Dual{Float64}(0.0, 1.0))
-
-@show sin(d3)

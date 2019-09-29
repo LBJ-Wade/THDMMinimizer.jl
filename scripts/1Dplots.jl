@@ -81,3 +81,27 @@ g(x) = 1 + 2x + 3x^2 + 0*x^3 + 5x^4
 
 @benchmark f(3.5)
 @benchmark g(3.5)
+
+
+
+
+
+
+point = 1890
+plt.close_figs()
+begin
+    ts = range(-0.2, stop=1.1, length=100)
+    vtrees, veffs = get_vtree_veffs(ts, point, :cb)
+    plt.figure(dpi=100)
+    plt.xlabel(L"t", fontsize=16)
+    plt.ylabel(L"$V(\phi(t))$", fontsize=16)
+    plt.plot(ts, vtrees, "--", label=L"$V_{\mathrm{tree}}$", lw=2)
+    plt.plot(ts, veffs, label=L"$V_{\mathrm{eff}}$", lw=2)
+    plt.xlim([minimum(ts), maximum(ts)])
+    plt.grid(true)
+    plt.legend(fontsize=14)
+    plt.gcf()
+    #plt.savefig("cb_1D_" * string(point) * ".pdf")
+    #title!(L"$\phi(t) = (1-t)\phi_{\mathrm{EW}} + t\phi_{\mathrm{CB}}$")
+    #annotate!([(0, -4.66e8, text(L"EW")), (1.0, -4.75e8, text(L"CB"))])
+end

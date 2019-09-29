@@ -4,37 +4,24 @@ import PyPlot; const plt=PyPlot;
 using LaTeXStrings
 using HomotopyContinuation
 
-data1 = readdlm(string(@__DIR__) * "/../data/verified_a1.csv", ',', skipstart=1);
-data2 = readdlm(string(@__DIR__) * "/../data/verified_a2.csv", ',', skipstart=1);
+data1 = readdlm(string(@__DIR__) * "/../data/verified_pos_mass_a1.csv", ',', skipstart=1);
+data2 = readdlm(string(@__DIR__) * "/../data/verified_pos_mass_a2.csv", ',', skipstart=1);
 
 function get_tree_roots(params::Params)
     m112, m122, m222 = params.m112, params.m122, params.m222
     λ1, λ2, λ3, λ4, λ5 = params.λ1, params.λ2, params.λ3, params.λ4, params.λ5
 
     @polyvar v1 v2 v3
-
     result = HomotopyContinuation.solve(
-        [(1.0 * m112 * v1 -
-          1.0 * m122 * v2 +
-          0.5 * λ1 * v1 * v1 +
-          0.5 * λ1 * v1 * v3 * v3 +
-          0.5 * λ3 * v1 * v2 * v2 +
-          0.5 * λ4 * v1 * v2 * v2 +
-          0.5 * λ5 * v1 * v2 * v2),
-         (-1.0 * m122 * v1 +
-          1.0 * m222 * v2 +
-          0.5 * λ2 * v2 * v2 +
-          0.5 * λ3 * v1 * v1 * v2 +
-          0.5 * λ3 * v2 * v3 * v3 +
-          0.5 * λ4 * v1 * v1 * v2 +
-          0.5 * λ5 * v1 * v1 * v2),
-         (1.0 * m112 * v3 +
-          0.5 * λ1 * v3 * v3 +
-          0.5 * λ1 * v1 * v1 * v3 +
-          0.5 * λ3 * v2 * v2 * v3)])
+        [(m112*v1 + 0.5λ1*v1^3 - m122*v2 + 0.5λ3*v1*v2^2 +
+          0.5λ4*v1*v2^2 + 0.5λ5*v1*v2^2 + 0.5λ1*v1*v3^2),
+         (-m122*v1 + m222*v2 + 0.5λ3*v1^2*v2 + 0.5λ4*v1^2*v2 +
+          0.5λ5*v1^2*v2 + 0.5λ2*v2^3 + 0.5λ3*v2*v3^2),
+         (m112*v3 + 0.5λ1*v1^2*v3 + 0.5λ3*v2^2*v3 + 0.5λ1*v3^3)])
 
     real_solutions(result)
 end
+
 
 function row_to_vacs_and_params(row; tol=1e-5)
     if length(row) == 18
@@ -81,7 +68,7 @@ function get_vtree_veffs_plane(ts, ss, θ, data)
     return vtrees, veffs, potential_eff(fs(0.0, 0.), pars), potential_eff(fs(1.0, 0.0), pars)
 end
 
-point=199
+point = 175
 plt.close_figs()
 begin
     plt.figure(dpi=100, figsize=(9,6))
@@ -90,9 +77,10 @@ begin
     plt.title("Effective Potential", fontsize=16)
     ts = range(-0.25, stop=1.25, length=100)
     ss = range(-0.3, stop=0.3, length=100)
-    vtrees, veffs, vn, vcb = get_vtree_veffs_plane(ts, ss, π, data1[point,:])
-    plt.contourf(ts, ss, veffs', cmap="viridis", levels=60)
-    plt.contour(ts, ss, veffs', cmap="binary",levels=120, linewidths=1,alpha=0.4)
+    vtrees, veffs, vn, vcb = get_vtree_veffs_plane(ts, ss, 0.0, data1[point,:])
+    levels = range(-4e8,stop=-2e8, length=20)
+    plt.contourf(ts, ss, veffs', cmap="viridis", levels=levels)
+    plt.contour(ts, ss, veffs', cmap="binary",levels=levels, linewidths=1,alpha=0.2)
     plt.scatter([0.0], [0.0], c="white")
     plt.scatter([1.0], [0.0], c="white")
     plt.text(0.90, 0.02, L"\mathrm{CB}", fontsize=30, fontdict=Dict(:color=>"white"))
@@ -101,9 +89,9 @@ begin
     plt.subplot(122)
     plt.yticks([])
     plt.title("Tree-Level Potential", fontsize=16)
-    plt.contourf(ts, ss, vtrees', cmap="viridis", levels=60, alpha=1.0)
-    plt.colorbar()
-    plt.contour(ts, ss, vtrees', cmap="Greys", levels=120, linewidths=1,alpha=0.4)
+    plt.contourf(ts, ss, vtrees', cmap="viridis", levels=levels, alpha=1.0)
+    plt.colorbar(label=L"V_\mathrm{eff}")
+    plt.contour(ts, ss, vtrees', cmap="Greys", levels=levels, linewidths=1,alpha=0.2)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.gcf()
     plt.savefig("cb_2D_" * string(point) * ".pdf")
@@ -112,7 +100,7 @@ end
 
 
 
-point=1042
+point=22
 plt.close_figs()
 begin
     plt.figure(dpi=100, figsize=(9,6))
@@ -121,9 +109,10 @@ begin
     plt.title("Effective Potential", fontsize=16)
     ts = range(-0.2, stop=1.2, length=100)
     ss = range(-0.4, stop=0.4, length=100)
-    vtrees, veffs, vn, vcb = get_vtree_veffs_plane(ts, ss, π/3, data2[point,:])
-    plt.contourf(ts, ss, veffs', cmap="viridis", levels=30)
-    plt.contour(ts, ss, veffs', cmap="Greys", levels=30, linewidths=1,alpha=0.4)
+    vtrees, veffs, vn, vcb = get_vtree_veffs_plane(ts, ss, π/4, data2[point,:])
+    levels = range(-6.4e8,stop=-4.0e8, length=20)
+    plt.contourf(ts, ss, veffs', cmap="viridis", levels=levels)
+    plt.contour(ts, ss, veffs', cmap="Greys", levels=levels, linewidths=1,alpha=0.2)
     plt.scatter([0.0], [0.0], c="white")
     plt.scatter([1.0], [0.0], c="white")
     plt.text(0.90, 0.02, L"\mathrm{CB}", fontsize=30, fontdict=Dict(:color=>"white"))
@@ -132,30 +121,30 @@ begin
     plt.subplot(122)
     plt.yticks([])
     plt.title("Tree-Level Potential", fontsize=16)
-    plt.contourf(ts, ss, vtrees', cmap="viridis", levels=50)
+    plt.contourf(ts, ss, vtrees', cmap="viridis", levels=levels)
     plt.colorbar()
-    plt.contour(ts, ss, vtrees', cmap="Greys", levels=50, linewidths=1,alpha=0.4)
+    plt.contour(ts, ss, vtrees', cmap="Greys", levels=levels, linewidths=1,alpha=0.2)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.gcf()
     plt.savefig("normal_2D_" * string(point) * ".pdf")
 end
 
-nvac,cbvac,pars=row_to_vacs_and_params(data2[1042, :])
+function istreemin(root, pars)
+    flds = Fields(root[1], root[2], root[3])
+    masses = scalar_squared_masses(flds, pars)
+    derivs = autodiff_gradient(potential_tree, flds, pars, (R1,R2,C1,C2,C3,C4,I1,I2))
+    derivs
+    numnegms = length(filter(m -> m < -1e-5, masses))
 
-sqrt.(abs.(one_loop_masses(nvac, pars)))
-sqrt.(abs.(one_loop_masses(cbvac, pars)))
-scalar_squared_masses(Fields(nvac), pars)
-get_tree_roots(pars)
-@show pars
-@show nvac
-@show cbvac
+    return numnegms == 0 && maximum(abs.(derivs)) < 1e-5
+end
 
+function istreemax(root, pars)
+    flds = Fields(root[1], root[2], root[3])
+    masses = scalar_squared_masses(flds, pars)
+    derivs = autodiff_gradient(potential_tree, flds, pars, (R1,R2,C1,C2,C3,C4,I1,I2))
+    derivs
+    numposms = length(filter(m -> m > 1e-5, masses))
 
-for i in 1:length(data1[:,1])
-    nvac,cbvac,pars=row_to_vacs_and_params(data1[i, :])
-    minn = minimum(scalar_squared_masses(Fields(nvac), pars))
-    mincb = minimum(scalar_squared_masses(Fields(cbvac), pars))
-    if minn>0 && mincb >0
-        println(i)
-    end
+    return numposms == 0 && maximum(abs.(derivs)) < 1e-5
 end
