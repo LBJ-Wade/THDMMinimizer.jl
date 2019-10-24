@@ -8,3 +8,14 @@ positive tree-level masses are stored in the `data` directory. The figures use i
 The `scripts` directory contains various `.jl` files used to generate the data and figures. An addition `README` file is located there for more information.
 
 Direct any question to `loanmorr@ucsc.edu`.
+
+See [https://arxiv.org/abs/1910.08662](url) for more information.
+
+@misc{ferreira2019oneloop,
+    title={One-Loop Charge-Breaking Minima in the Two-Higgs Doublet Model},
+    author={Pedro M. Ferreira and Logan A. Morrison and Stefano Profumo},
+    year={2019},
+    eprint={1910.08662},
+    archivePrefix={arXiv},
+    primaryClass={hep-ph}
+}
